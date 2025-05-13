@@ -5,6 +5,8 @@ import { useCart } from '../../context/CartContext';
 import { ProductRepository } from '../../data/repositories/ProductRepository';
 import { Product } from '../../data/models/Product';
 import CategoryProductsModal from '../../components/CategoryProductsModal';
+import NotificationToast, { ToastType } from '../../components/NotificationToast';
+import { useNotification } from '../../context/NotificationContext';
 
 // Helper component for empty cart illustration (can be moved to a separate file)
 const ShoppingCartEmpty = () => (
@@ -23,7 +25,26 @@ function SalesPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedModalCategory, setSelectedModalCategory] = useState<string | null>(null);
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success' as ToastType,
+  });
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { addNotification } = useNotification();
+  const lowStockNotified = useRef<Set<string>>(new Set()); // Track notified products by id/barcode
+
+  const showToast = (message: string, type: ToastType) => {
+    setToast({
+      isVisible: true,
+      message,
+      type,
+    });
+  };
+
+  const handleCloseToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
 
   useEffect(() => {
     setTitle('Sales Transaction');
@@ -59,15 +80,20 @@ function SalesPage() {
       
       if (product) {
         addItem(product);
+        showToast(`${product.name} added to cart`, 'success');
+        // Low stock notification (only once per product per session)
+        if (product.stock <= 5 && !lowStockNotified.current.has(product.barcode || product.id)) {
+          addNotification(`Stock low: ${product.name} (only ${product.stock} left)`, 'warning');
+          lowStockNotified.current.add(product.barcode || product.id);
+        }
         setBarcodeInput('');
       } else {
-        // Show not found message
-        alert(`Product with barcode ${barcodeInput} not found.`);
+        showToast(`Product with barcode ${barcodeInput} not found`, 'error');
         setBarcodeInput('');
       }
     } catch (error) {
       console.error('Error finding product by barcode:', error);
-      alert('An error occurred while searching for the product.');
+      showToast('An error occurred while searching for the product', 'error');
     }
   };
 
@@ -96,7 +122,14 @@ function SalesPage() {
     setSearchQuery('');
     setSearchResults([]);
     setIsSearching(false);
-    
+    showToast(`${product.name} added to cart`, 'success');
+
+    // Low stock notification (only once per product per session)
+    if (product.stock <= 5 && !lowStockNotified.current.has(product.barcode || product.id)) {
+      addNotification(`Stock low: ${product.name} (only ${product.stock} left)`, 'warning');
+      lowStockNotified.current.add(product.barcode || product.id);
+    }
+
     // Focus back on barcode input
     if (searchInputRef.current) {
       searchInputRef.current.focus();
@@ -111,6 +144,12 @@ function SalesPage() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <NotificationToast
+        isVisible={toast.isVisible}
+        message={toast.message}
+        type={toast.type}
+        onClose={handleCloseToast}
+      />
       {/* Left: Product Search and Results */}
       <div className="lg:col-span-2 space-y-4">
         {/* Apply card styles manually, omitting overflow-hidden */}
