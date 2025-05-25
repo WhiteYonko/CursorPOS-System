@@ -3,6 +3,8 @@ export interface Product {
   name: string;
   description?: string;
   barcode?: string;
+  sku?: string;
+  supplier?: string;
   price: number;
   costPrice: number;
   gst: number;
@@ -11,6 +13,7 @@ export interface Product {
   priceBreaks?: PriceBreak[];
   createdAt: Date;
   updatedAt: Date;
+  isDeleted?: boolean;
 }
 
 export interface PriceBreak {
@@ -25,6 +28,8 @@ export function rowToProduct(row: any): Product {
     name: row.name,
     description: row.description,
     barcode: row.barcode,
+    sku: row.sku,
+    supplier: row.supplier,
     price: row.price,
     costPrice: row.cost_price,
     gst: row.gst,
@@ -32,7 +37,8 @@ export function rowToProduct(row: any): Product {
     stock: row.stock,
     priceBreaks: row.price_breaks ? JSON.parse(row.price_breaks) : [],
     createdAt: new Date(row.created_at),
-    updatedAt: new Date(row.updated_at)
+    updatedAt: new Date(row.updated_at),
+    isDeleted: row.is_deleted === 1
   };
 }
 
@@ -43,12 +49,15 @@ export function productToRow(product: Product): any {
     name: product.name,
     description: product.description,
     barcode: product.barcode,
+    sku: product.sku,
+    supplier: product.supplier,
     price: product.price,
     cost_price: product.costPrice,
     gst: product.gst,
     category: product.category,
     stock: product.stock,
     price_breaks: product.priceBreaks ? JSON.stringify(product.priceBreaks) : null,
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    is_deleted: product.isDeleted ? 1 : 0
   };
 }
