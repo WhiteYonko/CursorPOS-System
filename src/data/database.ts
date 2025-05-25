@@ -21,6 +21,10 @@ export class RetailDatabase extends Dexie {
       sales: 'id, date, status, payment_method',
       saleItems: 'id, saleId, product_id'
     });
+
+    this.version(3).stores({
+      products: 'id, barcode, name, category, is_deleted'
+    });
   }
 }
 
