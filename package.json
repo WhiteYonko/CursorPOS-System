@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/react-datepicker": "^6.2.0",
+    "bcryptjs": "^3.0.2",
     "date-fns": "^2.30.0",
     "dexie": "^3.2.4",
     "dexie-react-hooks": "^1.1.6",

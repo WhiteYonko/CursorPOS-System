@@ -14,6 +14,7 @@ import { useApp } from '../context/AppContext';
 import { SaleRepository } from '../data/repositories/SaleRepository';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { useAuth } from '../context/AuthContext';
 
 function DashboardContent() {
   const { currentTitle, setTitle } = useApp();
@@ -25,6 +26,7 @@ function DashboardContent() {
     monthTotal: 0
   });
   const [chartData, setChartData] = useState<any[]>([]);
+  const { user } = useAuth();
   
   useEffect(() => {
     setTitle('Dashboard');
@@ -147,6 +149,9 @@ function DashboardContent() {
 
   return (
     <div className="space-y-6 animate-fade-in md:ml-0">
+      {user && (
+        <div className="mb-4 text-lg">Welcome, {user.username} ({user.role})!</div>
+      )}
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card, index) => (

@@ -1,12 +1,14 @@
 import React, { Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { useApp } from '../../context/AppContext';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { useAuth } from '../../context/AuthContext';
 
 function Layout() {
   const { sidebarOpen } = useApp();
+  const { user, logout } = useAuth();
 
   return (
     <div className="relative flex h-screen">
@@ -16,7 +18,20 @@ function Layout() {
       {/* Main Content (flexible width) */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header (fixed position) */}
-        <Header />
+        <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
+          <div className="font-bold flex items-center gap-4">
+            POS System
+            {user && user.role === 'admin' && (
+              <Link to="/admin" className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-700">Admin Dashboard</Link>
+            )}
+          </div>
+          {user && (
+            <div className="flex items-center gap-4">
+              <span>{user.username} ({user.role})</span>
+              <button onClick={logout} className="bg-red-500 px-3 py-1 rounded hover:bg-red-600">Logout</button>
+            </div>
+          )}
+        </header>
         
         {/* Page Content (scrollable) */}
         <main className={`
