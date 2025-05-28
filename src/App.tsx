@@ -34,7 +34,7 @@ function ProtectedRoute({ children, allowedRoles = ['admin', 'manager', 'cashier
   }
 
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/\" replace />;
   }
 
   return <>{children}</>;
